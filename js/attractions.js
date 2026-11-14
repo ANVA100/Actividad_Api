@@ -15,8 +15,17 @@
   const statusRegion = document.querySelector("#attraction-status");
   const resultsRegion = document.querySelector("#attraction-results");
   const totalLabel = document.querySelector("#attraction-count");
+  const filterForm = document.querySelector("#attraction-filter-form");
+  const searchInput = document.querySelector("#attraction-search");
+  const clearSearchButton = document.querySelector("#attraction-clear");
 
-  if (!statusRegion || !resultsRegion || !totalLabel) return;
+  if (!statusRegion || !resultsRegion || !totalLabel || !filterForm || !searchInput || !clearSearchButton) return;
+
+  let firstAttractions = [];
+  let departmentsById = new Map();
+  let totalAttractionCount = 0;
+  let hasLoaded = false;
+  let searchTimer = null;
 
   function makeTextElement(tagName, className, text) {
     const element = document.createElement(tagName);
@@ -33,6 +42,13 @@
     return departmentName
       || departmentsById.get(String(departmentId))
       || "Departamento no disponible";
+  }
+
+  function normalizeText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
   }
 
   function getSecureImageUrl(images) {
@@ -139,7 +155,40 @@
     return card;
   }
 
+  function renderAttractions() {
+    const query = normalizeText(searchInput.value.trim());
+    const matchingAttractions = firstAttractions.filter(({ attraction }) => {
+      if (!query) return true;
+      const searchableText = [
+        attraction.name,
+        attraction.city?.name,
+        getDepartmentName(attraction, departmentsById),
+        attraction.description,
+      ].join(" ");
+      return normalizeText(searchableText).includes(query);
+    });
+
+    if (matchingAttractions.length === 0) {
+      resultsRegion.replaceChildren();
+      totalLabel.textContent = `0 resultados entre los primeros ${formatCount(firstAttractions.length)}`;
+      ColombiaApi.showEmpty(statusRegion, "No hay atractivos que coincidan entre los primeros 20.");
+      return;
+    }
+
+    resultsRegion.replaceChildren(
+      ...matchingAttractions.map(({ attraction, index }) => createAttractionCard(attraction, index, departmentsById))
+    );
+    totalLabel.textContent = query
+      ? `${formatCount(matchingAttractions.length)} resultados entre los primeros ${formatCount(firstAttractions.length)}`
+      : totalAttractionCount > firstAttractions.length
+        ? `Primeros ${formatCount(firstAttractions.length)} de ${formatCount(totalAttractionCount)} atractivos`
+        : `Mostrando ${formatCount(firstAttractions.length)} atractivos`;
+    statusRegion.replaceChildren();
+    statusRegion.setAttribute("aria-busy", "false");
+  }
+
   async function loadAttractions() {
+    hasLoaded = false;
     ColombiaApi.showLoading(statusRegion, "Consultando atractivos turísticos...");
     totalLabel.textContent = "Cargando atractivos";
     resultsRegion.replaceChildren();
@@ -154,7 +203,7 @@
         throw new TypeError("El endpoint de atractivos no devolvió una lista.");
       }
 
-      const departmentsById = new Map(
+      departmentsById = new Map(
         (Array.isArray(departmentData) ? departmentData : [])
           .filter((department) => department && department.id !== null && department.id !== undefined && department.name)
           .map((department) => [String(department.id), department.name])
@@ -162,23 +211,22 @@
       const allAttractions = attractionData.filter(
         (attraction) => attraction && typeof attraction === "object"
       );
-      const attractions = allAttractions.slice(0, FIRST_ITEMS_LIMIT);
+      firstAttractions = allAttractions
+        .slice(0, FIRST_ITEMS_LIMIT)
+        .map((attraction, index) => ({ attraction, index }));
+      totalAttractionCount = allAttractions.length;
 
-      if (attractions.length === 0) {
+      if (firstAttractions.length === 0) {
+        hasLoaded = true;
         totalLabel.textContent = "0 atractivos";
         ColombiaApi.showEmpty(statusRegion, "La API no devolvió atractivos turísticos para mostrar.");
         return;
       }
 
-      resultsRegion.replaceChildren(
-        ...attractions.map((attraction, index) => createAttractionCard(attraction, index, departmentsById))
-      );
-      totalLabel.textContent = allAttractions.length > attractions.length
-        ? `Primeros ${formatCount(attractions.length)} de ${formatCount(allAttractions.length)} atractivos`
-        : `Mostrando ${formatCount(attractions.length)} atractivos`;
-      statusRegion.replaceChildren();
-      statusRegion.setAttribute("aria-busy", "false");
+      hasLoaded = true;
+      renderAttractions();
     } catch (error) {
+      hasLoaded = false;
       totalLabel.textContent = "Guía no disponible";
       ColombiaApi.showError(statusRegion, error, loadAttractions);
     }
@@ -187,6 +235,30 @@
   function formatCount(value) {
     return new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 }).format(value);
   }
+
+  function updateFromSearch() {
+    if (!hasLoaded) return;
+    renderAttractions();
+  }
+
+  function scheduleSearchUpdate() {
+    if (!hasLoaded) return;
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(updateFromSearch, 140);
+  }
+
+  filterForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.clearTimeout(searchTimer);
+    updateFromSearch();
+  });
+  searchInput.addEventListener("input", scheduleSearchUpdate);
+  clearSearchButton.addEventListener("click", () => {
+    window.clearTimeout(searchTimer);
+    searchInput.value = "";
+    updateFromSearch();
+    searchInput.focus();
+  });
 
   loadAttractions();
 })();

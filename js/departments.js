@@ -4,16 +4,22 @@
   const resultsRegion = document.querySelector("#department-results");
   const totalLabel = document.querySelector("#department-count");
   const regionSummary = document.querySelector("#region-summary");
+  const filterForm = document.querySelector("#department-filter-form");
+  const searchInput = document.querySelector("#department-search");
+  const regionFilter = document.querySelector("#department-region");
+  const clearFiltersButton = document.querySelector("#department-clear");
   const pagination = document.querySelector("#department-pagination");
   const previousButton = document.querySelector("#department-prev");
   const nextButton = document.querySelector("#department-next");
   const pageLabel = document.querySelector("#department-page-label");
 
-  if (!statusRegion || !resultsRegion || !totalLabel || !regionSummary || !pagination) return;
+  if (!statusRegion || !resultsRegion || !totalLabel || !regionSummary || !filterForm || !searchInput || !regionFilter || !clearFiltersButton || !pagination) return;
 
   let departments = [];
   let regionsById = new Map();
   let currentPage = 1;
+  let hasLoaded = false;
+  let filterTimer = null;
 
   function formatNumber(value) {
     if (value === null || value === undefined || value === "") return "Sin dato";
@@ -43,6 +49,49 @@
     return department.region?.name
       || regionsById.get(String(department.regionId))
       || "Región no disponible";
+  }
+
+  function normalizeText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+  }
+
+  function getFilteredDepartments() {
+    const query = normalizeText(searchInput.value.trim());
+    const selectedRegionId = regionFilter.value;
+
+    return departments.filter((department) => {
+      const regionId = String(department.region?.id ?? department.regionId ?? "");
+      if (selectedRegionId && regionId !== selectedRegionId) return false;
+      if (!query) return true;
+
+      const searchableText = [
+        department.name,
+        department.cityCapital?.name,
+        getRegionName(department),
+        department.description,
+      ].join(" ");
+      return normalizeText(searchableText).includes(query);
+    });
+  }
+
+  function populateRegionFilter() {
+    const allRegionsOption = document.createElement("option");
+    allRegionsOption.value = "";
+    allRegionsOption.textContent = "Todas las regiones";
+
+    const regionOptions = Array.from(regionsById.entries())
+      .sort((first, second) => first[1].localeCompare(second[1], "es", { sensitivity: "base" }))
+      .map(([id, name]) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        return option;
+      });
+
+    regionFilter.replaceChildren(allRegionsOption, ...regionOptions);
   }
 
   function renderRegionSummary() {
@@ -119,16 +168,27 @@
   }
 
   function renderDepartments() {
-    const totalItems = departments.length;
+    const filteredDepartments = getFilteredDepartments();
+    const totalItems = filteredDepartments.length;
     const pageCount = Math.ceil(totalItems / PAGE_SIZE);
     currentPage = Math.min(Math.max(currentPage, 1), Math.max(pageCount, 1));
 
+    if (totalItems === 0) {
+      resultsRegion.replaceChildren();
+      totalLabel.textContent = `0 de ${formatNumber(departments.length)} departamentos`;
+      pagination.hidden = true;
+      ColombiaApi.showEmpty(statusRegion, "No hay departamentos que coincidan con esos filtros.");
+      return;
+    }
+
     const startIndex = (currentPage - 1) * PAGE_SIZE;
-    const visibleDepartments = departments.slice(startIndex, startIndex + PAGE_SIZE);
+    const visibleDepartments = filteredDepartments.slice(startIndex, startIndex + PAGE_SIZE);
     const cards = visibleDepartments.map(createDepartmentCard);
     resultsRegion.replaceChildren(...cards);
 
-    totalLabel.textContent = `${formatNumber(totalItems)} departamentos`;
+    totalLabel.textContent = searchInput.value.trim() || regionFilter.value
+      ? `${formatNumber(totalItems)} de ${formatNumber(departments.length)} departamentos`
+      : `${formatNumber(totalItems)} departamentos`;
     updatePagination(totalItems);
     statusRegion.replaceChildren();
     statusRegion.setAttribute("aria-busy", "false");
@@ -155,12 +215,14 @@
           .filter((region) => region && region.id !== null && region.id !== undefined && region.name)
           .map((region) => [String(region.id), region.name])
       );
+      populateRegionFilter();
 
       departments = departmentData
         .filter((department) => department && typeof department === "object")
         .sort((first, second) => String(first.name || "").localeCompare(String(second.name || ""), "es", { sensitivity: "base" }));
 
       if (departments.length === 0) {
+        hasLoaded = true;
         totalLabel.textContent = "0 departamentos";
         renderRegionSummary();
         ColombiaApi.showEmpty(statusRegion, "La API no devolvió departamentos para mostrar.");
@@ -169,9 +231,11 @@
       }
 
       renderRegionSummary();
+      hasLoaded = true;
       currentPage = 1;
       renderDepartments();
     } catch (error) {
+      hasLoaded = false;
       totalLabel.textContent = "Directorio no disponible";
       ColombiaApi.showError(statusRegion, error, loadDepartments);
     }
@@ -184,10 +248,37 @@
   });
 
   nextButton.addEventListener("click", () => {
-    const pageCount = Math.ceil(departments.length / PAGE_SIZE);
+    const pageCount = Math.ceil(getFilteredDepartments().length / PAGE_SIZE);
     if (currentPage >= pageCount) return;
     currentPage += 1;
     renderDepartments();
+  });
+
+  function updateFromFilters() {
+    if (!hasLoaded) return;
+    currentPage = 1;
+    renderDepartments();
+  }
+
+  function scheduleFilterUpdate() {
+    if (!hasLoaded) return;
+    window.clearTimeout(filterTimer);
+    filterTimer = window.setTimeout(updateFromFilters, 140);
+  }
+
+  filterForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.clearTimeout(filterTimer);
+    updateFromFilters();
+  });
+  searchInput.addEventListener("input", scheduleFilterUpdate);
+  regionFilter.addEventListener("change", updateFromFilters);
+  clearFiltersButton.addEventListener("click", () => {
+    window.clearTimeout(filterTimer);
+    searchInput.value = "";
+    regionFilter.value = "";
+    updateFromFilters();
+    searchInput.focus();
   });
 
   loadDepartments();

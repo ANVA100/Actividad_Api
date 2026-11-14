@@ -59,6 +59,20 @@
             <p class="directory-total" id="department-count" aria-live="polite">Cargando directorio</p>
           </div>
 
+          <form class="filter-controls" id="department-filter-form" role="search" aria-label="Buscar y filtrar departamentos">
+            <label class="filter-field filter-search-field" for="department-search">
+              <span>Buscar un departamento</span>
+              <input id="department-search" type="search" autocomplete="off" placeholder="Nombre, capital o descripción">
+            </label>
+            <label class="filter-field" for="department-region">
+              <span>Región</span>
+              <select id="department-region">
+                <option value="">Todas las regiones</option>
+              </select>
+            </label>
+            <button class="filter-clear" id="department-clear" type="button">Limpiar filtros</button>
+          </form>
+
           <div class="directory-status" id="department-status" aria-live="polite" aria-busy="true"></div>
           <section class="region-breakdown" aria-labelledby="region-breakdown-title">
             <div class="region-breakdown-heading">

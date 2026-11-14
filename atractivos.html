@@ -58,6 +58,14 @@
             <p class="attraction-total" id="attraction-count" aria-live="polite">Cargando atractivos</p>
           </div>
 
+          <form class="filter-controls attraction-filters" id="attraction-filter-form" role="search" aria-label="Buscar atractivos entre los primeros 20">
+            <label class="filter-field filter-search-field" for="attraction-search">
+              <span>Buscar entre los primeros 20</span>
+              <input id="attraction-search" type="search" autocomplete="off" placeholder="Nombre, ciudad o departamento">
+            </label>
+            <button class="filter-clear" id="attraction-clear" type="button">Limpiar búsqueda</button>
+          </form>
+
           <div class="directory-status" id="attraction-status" aria-live="polite" aria-busy="true"></div>
           <div class="attraction-grid" id="attraction-results" role="region" aria-label="Atractivos turísticos de Colombia"></div>
         </section>
