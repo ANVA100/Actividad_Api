@@ -8,6 +8,7 @@
     <title>Departamentos | Colombia en datos</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/api.js" defer></script>
+    <script src="js/departments.js" defer></script>
     <script src="js/site.js" defer></script>
   </head>
   <body>
@@ -48,13 +49,36 @@
           </div>
         </section>
 
-        <section class="work-in-progress" aria-labelledby="departments-state-title">
-          <span class="progress-mark" aria-hidden="true">01</span>
-          <div>
-            <h2 id="departments-state-title">Conexión preparada</h2>
-            <p>El cliente compartido ya gestiona peticiones, caché y errores. En la siguiente parte cargaremos los departamentos.</p>
+        <section class="directory-section" aria-labelledby="directory-title">
+          <div class="directory-heading">
+            <div>
+              <p class="eyebrow eyebrow-dark">Datos de API Colombia</p>
+              <h2 id="directory-title">Los departamentos, uno a uno.</h2>
+              <p class="directory-intro">Consulta población, superficie, capital y región de cada departamento.</p>
+            </div>
+            <p class="directory-total" id="department-count" aria-live="polite">Cargando directorio</p>
           </div>
-          <span class="progress-label">Parte 2 de 6</span>
+
+          <div class="directory-status" id="department-status" aria-live="polite" aria-busy="true"></div>
+          <section class="region-breakdown" aria-labelledby="region-breakdown-title">
+            <div class="region-breakdown-heading">
+              <h3 id="region-breakdown-title">Departamentos por región</h3>
+              <span>Conteo actualizado desde la API</span>
+            </div>
+            <ul class="region-summary" id="region-summary" aria-label="Cantidad de departamentos por región"></ul>
+          </section>
+
+          <div class="department-grid" id="department-results" role="region" aria-label="Departamentos de Colombia"></div>
+
+          <nav class="pagination" id="department-pagination" aria-label="Páginas de departamentos" hidden>
+            <button class="pagination-button" id="department-prev" type="button" disabled>
+              <span aria-hidden="true">←</span> Anterior
+            </button>
+            <span class="pagination-label" id="department-page-label" aria-live="polite"></span>
+            <button class="pagination-button" id="department-next" type="button" disabled>
+              Siguiente <span aria-hidden="true">→</span>
+            </button>
+          </nav>
         </section>
       </div>
     </main>
