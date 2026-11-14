@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#123f35">
+    <meta name="description" content="Explora los departamentos y atractivos turísticos de Colombia con datos de API Colombia.">
+    <title>Colombia en datos | Explora el país</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="index.html" aria-label="Colombia en datos, inicio">
+          <span class="brand-mark" aria-hidden="true">CO</span>
+          <span class="brand-name">Colombia <span>en datos</span></span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menú">
+          <span></span><span></span>
+        </button>
+
+        <nav class="primary-nav" id="primary-nav" aria-label="Navegación principal">
+          <a class="nav-link is-active" href="index.html" aria-current="page">Inicio</a>
+          <a class="nav-link" href="departamentos.html">Departamentos</a>
+          <a class="nav-link" href="atractivos.html">Atractivos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="hero">
+        <div class="shell hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Un portal para recorrer Colombia</p>
+            <h1>Un país para descubrir,<br><em>dato a dato.</em></h1>
+            <p class="hero-lead">Conoce los territorios y lugares que hacen única a Colombia, a través de información consultada desde una API pública.</p>
+            <div class="hero-actions">
+              <a class="button button-light" href="departamentos.html">Explorar departamentos <span aria-hidden="true">↗</span></a>
+              <a class="text-link text-link-light" href="#explora">Conoce el portal <span aria-hidden="true">↓</span></a>
+            </div>
+            <p class="hero-note"><span aria-hidden="true">✳</span> Información de API Colombia</p>
+          </div>
+
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-sun"></div>
+            <div class="hero-hill hero-hill-back"></div>
+            <div class="hero-hill hero-hill-front"></div>
+            <div class="hero-stamp"><span>COLOMBIA</span><strong>Una tierra<br>de contrastes</strong><i>↗</i></div>
+            <span class="hero-coordinate">4° 34′ 0″ N<br>74° 17′ 0″ W</span>
+          </div>
+        </div>
+        <div class="hero-bottom-line" aria-hidden="true"><span></span></div>
+      </section>
+
+      <section class="explore-section shell" id="explora" aria-labelledby="explore-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow eyebrow-dark">Explora el portal</p>
+            <h2 id="explore-title">Dos caminos para conocer el país.</h2>
+          </div>
+          <p class="section-intro">Elige una ruta y descubre datos, historias y lugares de Colombia.</p>
+        </div>
+
+        <div class="explore-grid">
+          <a class="explore-card card-departments" href="departamentos.html">
+            <div class="card-topline"><span class="card-index">01 / TERRITORIO</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+            <div class="card-icon icon-map" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="card-copy">
+              <h3>Departamentos</h3>
+              <p>Recorre las regiones, capitales y datos que cuentan la diversidad del territorio colombiano.</p>
+            </div>
+            <span class="card-cta">Abrir explorador <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a class="explore-card card-attractions" href="atractivos.html">
+            <div class="card-topline"><span class="card-index">02 / VIAJES</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+            <div class="card-icon icon-sun" aria-hidden="true"><span></span></div>
+            <div class="card-copy">
+              <h3>Atractivos turísticos</h3>
+              <p>Encuentra destinos, paisajes y experiencias para inspirar tu próximo recorrido.</p>
+            </div>
+            <span class="card-cta">Abrir guía <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="source-band" aria-label="Fuente de los datos">
+        <div class="shell source-inner">
+          <span class="source-symbol" aria-hidden="true">✳</span>
+          <p><strong>Datos abiertos, curiosidad sin límites.</strong> Este portal consulta información pública de API Colombia.</p>
+          <a href="https://api-colombia.com/" target="_blank" rel="noreferrer">Visitar API Colombia <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <a class="brand brand-footer" href="index.html" aria-label="Colombia en datos, inicio">
+          <span class="brand-mark" aria-hidden="true">CO</span>
+          <span class="brand-name">Colombia <span>en datos</span></span>
+        </a>
+        <p>Un proyecto educativo para descubrir Colombia con datos abiertos.</p>
+        <span class="footer-credit">Hecho con curiosidad <span aria-hidden="true">✳</span></span>
+      </div>
+    </footer>
+  </body>
+</html>
