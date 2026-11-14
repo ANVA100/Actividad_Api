@@ -881,6 +881,89 @@ p {
   white-space: nowrap;
 }
 
+.api-state {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--white);
+}
+
+.api-state--loading {
+  color: var(--muted);
+}
+
+.api-state--error {
+  border-color: #e8c6bb;
+  background: #fff8f5;
+}
+
+.api-state--empty {
+  color: var(--muted);
+}
+
+.api-state-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--forest);
+  background: #edf2e5;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.api-state--loading .api-state-icon {
+  border: 3px solid #dce6d2;
+  border-top-color: var(--forest);
+  background: transparent;
+  animation: api-spin 800ms linear infinite;
+}
+
+.api-state--error .api-state-icon {
+  color: #8c3f2c;
+  background: #f7e5df;
+}
+
+.api-state-copy {
+  flex: 1;
+}
+
+.api-state-copy p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.api-retry-button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid #bfd0c4;
+  border-radius: 4px;
+  color: var(--forest);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.api-retry-button:hover {
+  background: #edf2e5;
+}
+
+.api-retry-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@keyframes api-spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 860px) {
   .hero-inner {
     grid-template-columns: 1fr 0.85fr;
@@ -1130,5 +1213,12 @@ p {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-state--loading .api-state-icon {
+    animation: none;
+    border-top-color: #dce6d2;
   }
 }
